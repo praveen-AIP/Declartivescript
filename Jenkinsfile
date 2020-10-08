@@ -23,7 +23,7 @@ pipeline
 		{
 			steps
 			{
-				git branch: 'development', url: 'https://github.com/PavanReddy77/maven-web-application.git'
+				git branch: 'development', credentialsId: '74bac532-9fbe-41a0-ad03-4e0fb5afbdcb', url: 'https://github.com/praveen-AIP/maven-web-application.git'
 				echo "Source code is Successfully Pulled from GitHub"
             		}
         	}
@@ -63,9 +63,9 @@ pipeline
 		{
 			steps
 			{
-				sshagent(['36070746-b68c-4b2d-a603-2f512f91f85d']) 
+				sshagent(['TomcatCrdentials']) 
 				{
-					sh 'scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.232.191.132:/opt/apache-tomcat-9.0.38/webapps/'
+					sh 'scp -o StrictHostKeyChecking=no target/maven-web-application.war praveen.k.polepalli@35.225.118.57:/opt/apache-tomcat-9.0.38/webapps/'
 					echo "Application is Successfully Deployed into Tomcat Server"
 				}
 			}
@@ -89,7 +89,7 @@ pipeline
 					{
 						emailext body: "Application is Successfully Deployed into Production Server\n${currentBuild.currentResult}:* Job Name: ${env.JOB_NAME} || Build Number: ${env.BUILD_NUMBER}\nMore information at: ${env.BUILD_URL}",
 						subject: 'CICD Pipeline Build Status',
-						to: 'TestAutomationDevOps@gmail.com'
+						to: 'polepallip@gmail.com'
 					}
 				}
 			}
@@ -111,7 +111,7 @@ pipeline
 		
 			emailext body: "Application is Successfully Deployed into Production Server\n${currentBuild.currentResult}:* Job Name: ${env.JOB_NAME} || Build Number: ${env.BUILD_NUMBER}\nMore information at: ${env.BUILD_URL}",
 			subject: 'CICD Pipeline Build Status',
-			to: 'TestAutomationDevOps@gmail.com'
+			to: 'polepallip@gmail.com'
 		}
 	}
 }
