@@ -36,6 +36,7 @@ pipeline
 				echo "Build is Successful"
             		}
         	}
+		/*
 		stage('SonarQube and Nexus')
 		{
 			parallel
@@ -95,6 +96,7 @@ pipeline
 			}
 		}
 	}
+	*/
 	post
 	{
 		always
