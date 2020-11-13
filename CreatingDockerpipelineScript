@@ -1,0 +1,28 @@
+node {
+    def buildnumber= BUILD_NUMBER
+    stage("git clone"){
+        git branch: 'master',url: 'https://github.com/praveen-AIP/java-web-app-docker.git'
+    }
+    stage("Maven Package"){
+        def mavenHome= tool name: "Maven"
+        sh "${mavenHome}/bin/mvn clean package"
+    }
+    stage("Build Docker Image"){
+        sh "docker build -t praveen514/javawebappdocker:${buildnumber} ."
+    }
+    stage("Docker login and push to Hub"){
+        withCredentials([string(credentialsId: 'dockerhudpwd', variable: 'dockerhudpwd')]) {
+        sh "docker login -u praveen514 -p ${dockerhudpwd}"
+        }
+        sh "docker push praveen514/javawebappdocker:${buildnumber}"
+        
+    }
+    stage("Deploy the image to docker "){
+        sshagent(['Dockerserver']) {
+        sh "ssh -o StrictHostKeychecking=no praveen.k.polepalli@10.128.0.11 docker rm -f javawebapp || true"
+        sh "ssh -o StrictHostKeychecking=no praveen.k.polepalli@10.128.0.11 docker run -d --name javawebapp -p 8080:8080 praveen514/javawebappdocker:${buildnumber}"
+        }
+    }
+    
+    
+}
