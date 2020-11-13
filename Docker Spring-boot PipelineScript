@@ -1,0 +1,34 @@
+node{
+    stage("git checkout"){
+        git branch: 'master',url: 'https://github.com/praveen-AIP/spring-boot-mongo-docker.git'
+    }
+    stage("Maven Package"){
+        def mavenHome=tool name: "Maven"
+        sh "${mavenHome}/bin/mvn clean package"
+    }
+    stage("Build Docker Image"){
+        sh "docker build -t praveen514/spring-boot-mongo ."
+    }
+    stage("Docker Push"){
+        withCredentials([string(credentialsId: 'dockerhudpwd', variable: 'dockerhudpwd')]) {
+        sh "docker login -u praveen514 -p ${dockerhudpwd}"
+        }
+        sh "docker push praveen514/spring-boot-mongo"
+    }
+    stage("Remove Local Image"){
+        sh "docker rmi praveen514/spring-boot-mongo"
+    }
+    stage("Create container in dev server"){
+        sshagent(['Dockerserver']) {
+        sh 'scp -o StrictHostKeyChecking=no docker-compose.yml docker-compose-dev.yml praveen.k.polepalli@10.128.0.9:.'
+        sh 'ssh -o StrictHostKeyChecking=no praveen.k.polepalli@10.128.0.9 docker-compose -f docker-compose.yml -f docker-compose-dev.yml up -d'
+        }
+    }
+    stage("Create container in qa server"){
+        sshagent(['Dockerserver']) {
+        sh 'scp -o StrictHostKeyChecking=no docker-compose.yml docker-compose-qa.yml praveen.k.polepalli@10.128.0.11:.'
+        sh 'ssh -o StrictHostKeyChecking=no praveen.k.polepalli@10.128.0.11 docker-compose -f docker-compose.yml -f docker-compose-qa.yml up -d'
+        }
+    }
+    
+}
